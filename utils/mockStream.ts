@@ -3,7 +3,7 @@ import { StreamChunk, EventType } from '../types';
 // GLOBAL SPEED CONTROL
 // Increase this to slow down the simulation (e.g., 1.0 = normal, 2.0 = 2x slower)
 // Use 0.1 for instant debugging.
-const DELAY_MULTIPLIER = 2.5;
+const DELAY_MULTIPLIER = 0.5;
 
 // This function simulates an Async Generator that yields chunks like the real backend would
 export async function* mockAdkStream(prompt: string): AsyncGenerator<StreamChunk> {
@@ -108,7 +108,7 @@ export async function* mockAdkStream(prompt: string): AsyncGenerator<StreamChunk
 
     // Markdown Table
     const table = `
-| Province | Current (2024) | Projected (2027) | Growth Rate |
+| Province | Last (2021) | Projected (2027) | Growth Rate |
 | :--- | :--- | :--- | :--- |
 | **Ontario (ON)** | 14.22M | 15.10M | +6.2% |
 | **Quebec (QC)** | 8.50M | 8.72M | +2.6% |

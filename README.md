@@ -89,3 +89,8 @@ The frontend expects an ADK-compatible backend running at `API_BASE_URL` with th
 
 - **Map Tiles Broken/Grey**: Ensure the container has a defined height. The `MapPanel` component handles resize events automatically, but parent containers must have `height: 100%`.
 - **CORS Errors**: Ensure your Python/Node backend has CORS enabled for the domain where this frontend is hosted.
+
+## Artifacts :
+[Youtube](https://youtu.be/hQYnp5tiULw)
+[Github](https://github.com/ibrezm1/g7-govAI-northStart)
+[Slides](https://docs.google.com/presentation/d/1Kntl6g6VsNPrea7Yd2qj06z23GIZtCacKfGWMRm2Mso/edit?slide=id.p1#slide=id.p1)
