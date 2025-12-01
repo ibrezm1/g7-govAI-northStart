@@ -1,4 +1,4 @@
-# ADK Geo-Agent Interface
+# G7 GovAI NorthStar
 
 A React-based frontend interface for the Agent Development Kit (ADK). This application provides a split-screen experience with a real-time chat interface and a synchronized Leaflet map visualization panel.
 
