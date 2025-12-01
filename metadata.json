@@ -1,0 +1,5 @@
+{
+  "name": "ADK Geo-Agent Interface",
+  "description": "A geospatial chat interface connecting to an ADK backend for real-time population impact analysis and map visualization.",
+  "requestFramePermissions": []
+}

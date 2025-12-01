@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ADK Geo-Agent</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      crossorigin=""
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                750: '#2d3748',
+                850: '#1a202c',
+                950: '#0f172a',
+              }
+            },
+            animation: {
+              'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html, body, #root {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      
+      /* LEAFLET FIXES - CRITICAL FOR TAILWIND COMPATIBILITY */
+      /* Override Tailwind's img max-width: 100% reset which breaks map tiles */
+      .leaflet-pane img,
+      .leaflet-tile,
+      .leaflet-marker-icon,
+      .leaflet-marker-shadow {
+        max-width: none !important;
+        max-height: none !important;
+        width: auto;
+        height: auto;
+      }
+      
+      .leaflet-container {
+        width: 100%;
+        height: 100%;
+        /* Default to dark, mapped via React props now */
+        z-index: 0;
+      }
+      
+      /* Custom Scrollbar for Chat */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #94a3b8; /* slate-400 */
+        border-radius: 3px;
+      }
+      .dark .custom-scrollbar::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+      .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #475569;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+      }
+
+      /* MARKDOWN STYLES - BASE */
+      .markdown-content p { margin-bottom: 0.75em; }
+      .markdown-content p:last-child { margin-bottom: 0; }
+      .markdown-content h1, .markdown-content h2, .markdown-content h3 { font-weight: 700; margin-top: 1em; margin-bottom: 0.5em; line-height: 1.2; }
+      .markdown-content h1 { font-size: 1.25em; }
+      .markdown-content h2 { font-size: 1.1em; }
+      .markdown-content ul { list-style-type: disc; padding-left: 1.4em; margin-bottom: 0.75em; }
+      .markdown-content ol { list-style-type: decimal; padding-left: 1.4em; margin-bottom: 0.75em; }
+      .markdown-content li { margin-bottom: 0.25em; }
+      .markdown-content strong { font-weight: 700; }
+      
+      /* Markdown Images */
+      .markdown-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5em;
+        margin-top: 0.75em;
+        margin-bottom: 0.75em;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border: 1px solid rgba(0,0,0,0.1);
+      }
+      .dark .markdown-content img {
+        border: 1px solid rgba(255,255,255,0.1);
+      }
+      
+      /* Code Blocks */
+      .markdown-content pre { 
+        padding: 0.8em; 
+        border-radius: 0.5em; 
+        overflow-x: auto; 
+        margin-top: 0.75em; 
+        margin-bottom: 0.75em; 
+      }
+      .markdown-content code { 
+        padding: 0.15em 0.3em; 
+        border-radius: 0.25em; 
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 
+        font-size: 0.9em; 
+      }
+      .markdown-content pre code { 
+        padding: 0; 
+        background-color: transparent; 
+        color: inherit;
+        font-size: 0.85em;
+      }
+      
+      /* Tables */
+      .markdown-content table { border-collapse: collapse; width: 100%; margin-bottom: 0.75em; font-size: 0.9em; }
+      .markdown-content th { text-align: left; padding: 0.5em; font-weight: 600; }
+      .markdown-content td { padding: 0.5em; }
+
+      /* === ASSISTANT BUBBLE (LIGHT MODE) === */
+      /* These rules apply by default or when .dark is NOT present */
+      .assistant-message .markdown-content { color: #0f172a; } /* Dark Text */
+      
+      .assistant-message .markdown-content h1, 
+      .assistant-message .markdown-content h2, 
+      .assistant-message .markdown-content h3 { color: #020617; }
+      
+      .assistant-message .markdown-content table,
+      .assistant-message .markdown-content th,
+      .assistant-message .markdown-content td { color: #020617; } /* Black Tables */
+      
+      .assistant-message .markdown-content th { border-bottom: 2px solid #cbd5e1; border-color: #cbd5e1; }
+      .assistant-message .markdown-content td { border-bottom: 1px solid #e2e8f0; border-color: #e2e8f0; }
+
+      .assistant-message .markdown-content code { background-color: rgba(0,0,0,0.05); color: #d946ef; }
+      .assistant-message .markdown-content pre { background-color: #1e293b; color: #f8fafc; border: 1px solid #e2e8f0; } 
+      .assistant-message .markdown-content a { color: #2563eb; text-decoration: underline; }
+      .assistant-message .markdown-content blockquote { border-left: 3px solid #cbd5e1; padding-left: 0.75em; color: #334155; }
+
+
+      /* === ASSISTANT BUBBLE (DARK MODE) === */
+      /* Overrides for when .dark class is active on html/body */
+      .dark .assistant-message .markdown-content { color: #e2e8f0; } /* Light Text */
+
+      .dark .assistant-message .markdown-content h1, 
+      .dark .assistant-message .markdown-content h2, 
+      .dark .assistant-message .markdown-content h3 { color: #f1f5f9; }
+      
+      .dark .assistant-message .markdown-content table,
+      .dark .assistant-message .markdown-content th,
+      .dark .assistant-message .markdown-content td { color: #e2e8f0; } /* White Tables */
+
+      .dark .assistant-message .markdown-content th { border-bottom: 2px solid rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.1); }
+      .dark .assistant-message .markdown-content td { border-bottom: 1px solid rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.05); }
+
+      .dark .assistant-message .markdown-content code { background-color: rgba(0,0,0,0.3); color: #e2e8f0; }
+      .dark .assistant-message .markdown-content pre { background-color: #0f172a; border: 1px solid #334155; }
+      .dark .assistant-message .markdown-content a { color: #60a5fa; text-decoration: underline; }
+      .dark .assistant-message .markdown-content blockquote { border-left: 3px solid #475569; padding-left: 0.75em; color: #94a3b8; }
+
+
+      /* === USER BUBBLE (Blue) === */
+      /* Same for both modes */
+      .user-message .markdown-content { color: #ffffff; }
+      
+      .user-message .markdown-content h1, 
+      .user-message .markdown-content h2, 
+      .user-message .markdown-content h3 { color: #fff; }
+      
+      .user-message .markdown-content table,
+      .user-message .markdown-content th,
+      .user-message .markdown-content td { color: #fff; border-color: rgba(255,255,255,0.2); }
+
+      .user-message .markdown-content code { background-color: rgba(0,0,0,0.2); color: #fff; }
+      .user-message .markdown-content pre { background-color: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); }
+      .user-message .markdown-content a { color: #fff; text-decoration: underline; font-weight: 500; }
+      .user-message .markdown-content blockquote { border-left: 3px solid rgba(255,255,255,0.3); padding-left: 0.75em; color: rgba(255,255,255,0.8); }
+
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "leaflet": "https://aistudiocdn.com/leaflet@^1.9.4",
+    "@heroicons/react/": "https://aistudiocdn.com/@heroicons/react@^2.2.0/",
+    "react-leaflet": "https://aistudiocdn.com/react-leaflet@^5.0.0",
+    "react-markdown": "https://esm.sh/react-markdown@9?bundle",
+    "remark-gfm": "https://esm.sh/remark-gfm@4?bundle"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
