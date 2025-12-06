@@ -4,6 +4,13 @@ A React-based frontend interface for the Agent Development Kit (ADK). This appli
 
 It connects to an ADK backend to stream text responses, reasoning events, and geospatial data (markers, polygons, fly-to operations) simultaneously.
 
+## Screenshots
+![Chat and Map Split View](./imgs/Sc1.png)
+![Event Logging](./imgs/Sc2.png)   
+![Chat and Map Split View](./imgs/Sc3.png)
+![Event Logging](./imgs/Sc4.png)  
+![Chat and Map Split View](./imgs/Sc5.png)
+
 ## Features
 
 - **Real-time SSE Streaming**: Consumes server-sent events for incremental text and data updates.
