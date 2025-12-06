@@ -5,10 +5,17 @@ A React-based frontend interface for the Agent Development Kit (ADK). This appli
 It connects to an ADK backend to stream text responses, reasoning events, and geospatial data (markers, polygons, fly-to operations) simultaneously.
 
 ## Screenshots
+### Projected population info
 ![Chat and Map Split View](./imgs/Sc1.png)
 ![Event Logging](./imgs/Sc2.png)   
+
+### Most impacted Provinces with low healthcare density Scores 
 ![Chat and Map Split View](./imgs/Sc3.png)
+
+### Possible augmentation alternatives
 ![Event Logging](./imgs/Sc4.png)  
+
+### Architcture
 ![Chat and Map Split View](./imgs/Sc5.png)
 
 ## Features
